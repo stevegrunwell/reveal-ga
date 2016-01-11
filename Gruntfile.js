@@ -10,14 +10,26 @@ module.exports = function(grunt) {
       }
     },
 
+    uglify: {
+      dist: {
+        files: {
+          'dist/reveal-ga.min.js': ['src/reveal-ga.js']
+        }
+      },
+      options: {
+        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */' + "\n"
+      }
+    },
+
     watch: {
       files: ['<%= jshint.files %>'],
-      tasks: ['jshint']
+      tasks: ['jshint', 'uglify']
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['jshint']);
+  grunt.registerTask('default', ['jshint', 'uglify']);
 };
