@@ -72,6 +72,28 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     ga('send', 'event', eventObj);
   }
 
+  /**
+   * Register the appropriate event listeners for Reveal.js.
+   */
+  function addEventListeners() {
+    // Track the changing of slides
+    Reveal.addEventListener('slidechanged', function (ev) {
+      addEvent('changeslide', {
+        eventLabel: 'Change current slide',
+        eventValue: ev.indexh + '.' + ev.indexv
+      });
+    });
+
+    // Reveal overview mode
+    Reveal.addEventListener('overviewshown', function (ev) {
+      addEvent('overviewshown', { eventLabel: 'Slide overview shown' });
+    });
+
+    Reveal.addEventListener('overviewhidden', function (ev) {
+      addEvent('overviewhidden', { eventLabel: 'Slide overview hidden' });
+    });
+  }
+
   // Verify that Reveal has loaded and we have a gaPropertyID variable
   if ('undefined' === typeof Reveal || 'undefined' === typeof gaPropertyID) {
     console.warn('Unable to register custom Google Analytics events. Please ' +
@@ -83,21 +105,10 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   ga('create', gaPropertyID, 'auto');
   ga('send', 'pageview');
 
-  // Track the changing of slides
-  Reveal.addEventListener('slidechanged', function (ev) {
-    addEvent('changeslide', {
-      eventLabel: 'Change current slide',
-      eventValue: ev.indexh + '.' + ev.indexv
-    });
-  });
-
-  // Reveal overview mode
-  Reveal.addEventListener('overviewshown', function (ev) {
-    addEvent('overviewshown', { eventLabel: 'Slide overview shown' });
-  });
-
-  Reveal.addEventListener('overviewhidden', function (ev) {
-    addEvent('overviewhidden', { eventLabel: 'Slide overview hidden' });
-  });
+  if (Reveal.isReady()) {
+    addEventListeners();
+  } else {
+    Reveal.addEventListener('ready', addEventListeners);
+  }
 
 }) (undefined);
