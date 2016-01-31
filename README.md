@@ -8,21 +8,19 @@ Reveal.js provides a number of events that we can listen for, and this package w
 ## Installation
 
 1. Install the plugin via [`npm`](https://npmjs.org):
-	```bash
-$ npm install --save reveal-ga
-```
+
+		$ npm install --save reveal-ga
 
 2. Obtain a Profile ID from [Google Analytics](https://analytics.google.com/analytics/web); this should look something like `UA-XXXXXXXX-X`.
+
 3. Define a `gaPropertyID` variable in your presentation file **before** `Reveal.initialize()`:
 
-	```js
-<script>
-	var gaPropertyID = 'UA-XXXXXXXX-X';
-	Reveal.initialize({
-		// ...
-	});
-</script>
-```
+		<script>
+			var gaPropertyID = 'UA-XXXXXXXX-X';
+			Reveal.initialize({
+				// ...
+			});
+		</script>
 
 
 ## What is tracked?
