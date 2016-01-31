@@ -42,6 +42,28 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   }
 
   /**
+   * Convenience function to replicate jQuery's $.trigger() method.
+   *
+   * @param object el The element on which to trigger the event.
+   * @param string ev The event to trigger.
+   * @param object data Additional data to pass to the event.
+   */
+  function triggerEvent(el, ev, data) {
+    var event;
+
+    data = data || {};
+
+    if (window.CustomEvent) {
+      event = new CustomEvent(ev, {detail: data});
+    } else {
+      event = document.createEvent('CustomEvent');
+      event.initCustomEvent(ev, true, true, data);
+    }
+
+    el.dispatchEvent(event);
+  }
+
+  /**
    * Send an event to Google Analytics.
    *
    * @param string category   The category for the event.
@@ -70,6 +92,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     eventObj   = extend(eventObj, attributes);
 
     ga('send', 'event', eventObj);
+    triggerEvent(window, 'reveal-ga', eventObj);
   }
 
   /**
