@@ -22,6 +22,13 @@ Reveal.js provides a number of events that we can listen for, and this package w
 			});
 		</script>
 
+4. Add the following inside `Reveal.initialize`'s `dependencies` array to load the plugin:
+
+		dependencies: [
+			// other dependencies/plugins
+			{ src: 'node_modules/reveal-ga/dist/reveal-ga.min.js' }
+		]
+
 
 ## What is tracked?
 
