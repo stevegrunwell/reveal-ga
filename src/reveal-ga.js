@@ -12,7 +12,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 /* jshint ignore:end */
 
-(function () {
+(function() {
   'use strict';
 
   /**
@@ -27,7 +27,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     out = out || {};
 
     for (var i = 1; i < arguments.length; i++) {
-      if (! arguments[i]) {
+      if (!arguments[i]) {
         continue;
       }
 
@@ -54,7 +54,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     data = data || {};
 
     if (window.CustomEvent) {
-      event = new CustomEvent(ev, {detail: data});
+      event = new CustomEvent(ev, { detail: data });
     } else {
       event = document.createEvent('CustomEvent');
       event.initCustomEvent(ev, true, true, data);
@@ -69,30 +69,60 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
    * @param string category   The category for the event.
    * @param string action     The action that occurred.
    * @param object attributes {
-   *     Optional. Additional attributes to pass to Google Analytics. Default
-   *     is an empty object.
+   *   Optional. Additional attributes to pass to Google Analytics. Default
+   *   is an empty object.
    *
-   *     @type string eventCategory The category for this event. Default is
-   *                                "reveal-js".
-   *     @type string eventLabel    A label to attach to this event. Default is
-   *                                an empty string.
-   *     @type string eventValue    A value to attach to this event. Default is
-   *                                an empty string.
+   *   @type string eventCategory The category for this event. Default is
+   *                              "reveal-js".
+   *   @type string eventLabel    A label to attach to this event. Default is
+   *                              an empty string.
+   *   @type integer eventValue    A value to attach to this event. Default is
+   *                              null
    * }
    */
   function addEvent(action, attributes) {
     var eventObj = {
-      eventAction: action,
+      hitType: 'event',
       eventCategory: 'reveal-js',
-      eventLabel: '',
-      eventValue: ''
+      eventAction: action,
+      eventLabel: ''
     };
 
     attributes = attributes || {};
-    eventObj   = extend(eventObj, attributes);
+    // Make sure eventValue is an integer, or GA won't register the event
+    if ('eventValue' in attributes) {
+      attributes.eventValue = parseInt(attributes.eventValue);
+    }
+    eventObj = extend(eventObj, attributes);
 
-    ga('send', 'event', eventObj);
+    ga('send', eventObj);
     triggerEvent(window, 'reveal-ga', eventObj);
+  }
+
+  /**
+   * Send a PageView command for every new slide visited.
+   * @param string title   The title for current slide.
+   * @param string page    Current slide's URL.
+   *
+   */
+  function addPageView(title, page) {
+    var eventObj = {
+      hitType: 'pageview',
+      page: page,
+      title: title || document.title
+    };
+
+    ga('send', eventObj);
+  }
+
+  function pad(n, width) {
+    n = n + '';
+    return n.length >= width ?
+      n : new Array(width - n.length + 1).join('0') + n;
+  }
+
+  function getSlideLabel(ev) {
+    return '(' + ev.indexh + '-' + ev.indexv + ')';
   }
 
   /**
@@ -100,27 +130,37 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
    */
   function addEventListeners() {
     // Track the changing of slides
-    Reveal.addEventListener('slidechanged', function (ev) {
+    Reveal.addEventListener('slidechanged', function(ev) {
       addEvent('changeslide', {
-        eventLabel: 'Change current slide',
-        eventValue: ev.indexh + '.' + ev.indexv
+        eventLabel: 'Change current slide ' + getSlideLabel(ev)
       });
+      // We need to "wait" so URL is changed
+      setTimeout(function() {
+        var title = ev.currentSlide.querySelector('h1,h2,h3').innerText || '';
+        var page = location.pathname + location.hash;
+        addPageView(title, page);
+      }, 0);
     });
 
     // Reveal overview mode
-    Reveal.addEventListener('overviewshown', function (ev) {
-      addEvent('overviewshown', { eventLabel: 'Slide overview shown' });
+    Reveal.addEventListener('overviewshown', function(ev) {
+      addEvent('overviewshown', {
+        eventLabel: 'Slide overview shown ' + getSlideLabel(ev)
+      });
     });
 
-    Reveal.addEventListener('overviewhidden', function (ev) {
-      addEvent('overviewhidden', { eventLabel: 'Slide overview hidden' });
+    Reveal.addEventListener('overviewhidden', function(ev) {
+      addEvent('overviewhidden', {
+        eventLabel: 'Slide overview hidden ' + getSlideLabel(ev)
+      });
     });
   }
 
   // Verify that Reveal has loaded and we have a gaPropertyID variable
   if ('undefined' === typeof Reveal || 'undefined' === typeof gaPropertyID) {
-    console.warn('Unable to register custom Google Analytics events. Please ' +
-      'see https://github.com/stevegrunwell/reveal-ga for more information.'
+    console.warn(
+      'Unable to register custom Google Analytics events. Please ' +
+        'see https://github.com/stevegrunwell/reveal-ga for more information.'
     );
     return;
   }
@@ -133,5 +173,4 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   } else {
     Reveal.addEventListener('ready', addEventListeners);
   }
-
-}) (undefined);
+})(undefined);
