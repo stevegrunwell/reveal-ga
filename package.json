@@ -1,6 +1,6 @@
 {
   "name": "reveal-ga",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Add Google Universal Analytics tracking to your reveal.js presentation",
   "main": "./src/reveal-ga.js",
   "scripts": {
