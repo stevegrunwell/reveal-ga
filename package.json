@@ -16,9 +16,7 @@
   "author": "Steve Grunwell <steve@stevegrunwell.com> (https://stevegrunwell.com)",
   "repository": "https://github.com/stevegrunwell/reveal-ga",
   "license": "MIT",
-  "dependencies": {
-    "lodash": "^3.10.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-cli": "^1.3.2",
