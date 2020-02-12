@@ -5,15 +5,22 @@
  * @author  Steve Grunwell <steve@stevegrunwell.com>
  */
 
-/* jshint ignore:start */
-;(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-/* jshint ignore:end */
-
-(function() {
+var revealga = window.revealga || function () {
   'use strict';
+
+  /* jshint ignore:start */
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  /* jshint ignore:end */
+  
+	var options = Reveal.getConfig().revealga || {};
+
+	var defaultOptions = {
+    id: 'UA-XXXXX-X',
+    debug: false
+	};
 
   /**
    * Replacement for jQuery's $.extend() method.
@@ -39,28 +46,6 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     }
 
     return out;
-  }
-
-  /**
-   * Convenience function to replicate jQuery's $.trigger() method.
-   *
-   * @param object el The element on which to trigger the event.
-   * @param string ev The event to trigger.
-   * @param object data Additional data to pass to the event.
-   */
-  function triggerEvent(el, ev, data) {
-    var event;
-
-    data = data || {};
-
-    if (window.CustomEvent) {
-      event = new CustomEvent(ev, { detail: data });
-    } else {
-      event = document.createEvent('CustomEvent');
-      event.initCustomEvent(ev, true, true, data);
-    }
-
-    el.dispatchEvent(event);
   }
 
   /**
@@ -96,7 +81,10 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     eventObj = extend(eventObj, attributes);
 
     ga('send', eventObj);
-    triggerEvent(window, 'reveal-ga', eventObj);
+
+    if (options.debug) {
+      console.log('New Reveal GA event:', eventObj);
+    }
   }
 
   /**
@@ -113,12 +101,6 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     };
 
     ga('send', eventObj);
-  }
-
-  function pad(n, width) {
-    n = n + '';
-    return n.length >= width ?
-      n : new Array(width - n.length + 1).join('0') + n;
   }
 
   function getSlideLabel(ev) {
@@ -156,21 +138,32 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     });
   }
 
-  // Verify that Reveal has loaded and we have a gaPropertyID variable
-  if ('undefined' === typeof Reveal || 'undefined' === typeof gaPropertyID) {
-    console.warn(
-      'Unable to register custom Google Analytics events. Please ' +
-        'see https://github.com/stevegrunwell/reveal-ga for more information.'
-    );
-    return;
-  }
+	var init = function () {
 
-  ga('create', gaPropertyID, 'auto');
-  ga('send', 'pageview');
+    options = extend(defaultOptions, options);
 
-  if (Reveal.isReady()) {
-    addEventListeners();
-  } else {
-    Reveal.addEventListener('ready', addEventListeners);
-  }
-})(undefined);
+    if (options.id === 'UA-XXXXX-X') {
+      console.warn(
+        'Please change the fake Google Analytics ' +
+        'ID to your own Google Analytics ID'
+      );
+      return;
+    }
+
+    ga('create', options.id, 'auto');
+    ga('send', 'pageview');
+
+    if (Reveal.isReady()) {
+      addEventListeners();
+
+    } else {
+      Reveal.addEventListener('ready', addEventListeners);
+    }
+	};
+
+	return {
+		init: init
+	};
+}();
+
+Reveal.registerPlugin('revealga', revealga);
