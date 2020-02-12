@@ -7,27 +7,32 @@ Reveal.js provides a number of events that we can listen for, and this package w
 
 ## Installation
 
-1. Install the plugin via [`npm`](https://npmjs.org):
+1. Copy the `reveal-ga.min.js` file to the plugins folder of the reveal.js folder. Add it to `Reveal.initialize`'s `dependencies` array to load the plugin:
 
-		$ npm install --save reveal-ga
-
-2. Obtain a Profile ID from [Google Analytics](https://analytics.google.com/analytics/web); this should look something like `UA-XXXXXXXX-X`.
-
-3. Define a `gaPropertyID` variable in your presentation file **before** `Reveal.initialize()`:
-
-		<script>
-			var gaPropertyID = 'UA-XXXXXXXX-X';
-			Reveal.initialize({
+		Reveal.initialize({
 				// ...
-			});
-		</script>
+			dependencies: [
+				// other dependencies/plugins
+				{ src: 'assets/js/revealjs/plugin/reveal-ga.min.js' }
+			]
+		});
 
-4. Add the following inside `Reveal.initialize`'s `dependencies` array to load the plugin:
+	Note that this example has an "assets" and "js" folder for resources. Just make sure the references are correct.
 
-		dependencies: [
-			// other dependencies/plugins
-			{ src: 'node_modules/reveal-ga/dist/reveal-ga.min.js' }
-		]
+2. Obtain a Tracking ID from [Google Analytics](https://analytics.google.com/analytics/web); this should look something like `UA-XXXXXXXX-X`.
+
+3. In your revealga options inside `Reveal.initialize()`, set the `id` to your Tracking ID:
+
+		Reveal.initialize({
+			// ...
+			revealga: {
+				// Enter the Tracking ID here:
+				id: 'UA-XXXXX-X'
+			},
+			dependencies: [
+			// ... 
+			]
+		});
 
 
 ## Reveal.js events that can be tracked
@@ -40,21 +45,26 @@ After setting up the package according to the instructions above, Google Analyti
 
 ### Debugging events
 
-If you want to see what information is being sent, drop the following somewhere in your presentation to get debug statements output to the console:
+If you want to see what information is being sent, set `debug: true` in your revealga options to get debug statements output to the console:
 
-```js
-window.addEventListener('reveal-ga', function (ev) {
-  console.log('New Reveal GA event:', ev.detail);
+```javascript
+Reveal.initialize({
+	// ...
+	revealga: {
+		id: 'UA-XXXXX-X',
+		debug: true
+	},
+	dependencies: [
+	// ... 
+	]
 });
 ```
-
-Every time a new event is sent to Google Analytics a corresponding custom `reveal-ga` event is also sent to the `window` object.
 
 
 ## Troubleshooting
 
 Here are common errors found with reveal-ga and potential solutions:
 
-### Received an "Unable to register custom Google Analytics events" warning in the console.
+### Received a "Please change the fake Google Analytics ID to your own Google Analytics ID" warning in the console.
 
-This warning occurs when either the `Reveal` object or the `gaPropertyID` variable is undefined. Please be sure that reveal-ga is being loaded via [Reveal.js' `dependencies` property](https://github.com/hakimel/reveal.js/#dependencies) as described in the instructions above, and that `gaPropertyID` is declared before calling `Reveal.initialize()`.
+This warning occurs when the Tracking ID is still set to the placeholder ID. Change the ID in the options of revealga as described above in Installation, point 3.
